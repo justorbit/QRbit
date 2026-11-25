@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ORbit — Free QR Code Generator</title>
+  <meta
+    name="description"
+    content="Generate and download clean QR codes for URLs, plain text, email addresses, and phone numbers. 100% client-side and free."
+  />
+<style>
+
+    :root {
+  --bg-page: #f6f7f9;
+  --bg-surface: #ffffff;
+  --bg-subtle: #f1f3f5;
+  --bg-hover: #e9ecef;
+
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #6b7280;
+
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+
+  --accent: #111827;
+  --accent-hover: #1f2937;
+  --accent-text: #ffffff;
+
+  --focus-ring: rgba(17, 24, 39, 0.14);
+  --error: #dc2626;
+  --error-bg: #fef2f2;
+  --success: #059669;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px rgba(16, 24, 40, 0.05);
+  --transition: 150ms ease;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  gap: 24px;
+}
+
+/* Header */
+.header {
+  width: 100%;
+  max-width: 860px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background-color: var(--accent);
+  color: var(--accent-text);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.brand-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.brand-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+/* Main Card */
+.main {
+  width: 100%;
+  max-width: 860px;
+}
+
+.card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  overflow: hidden;
+}
+
+.panel {
+  padding: 28px;
+}
+
+.panel-input {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  border-right: 1px solid var(--border);
+}
+
+.panel-preview {
+  background-color: #fafafa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+/* Labels & Groups */
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.section-label,
+.input-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.01em;
+}
+
+/* Segmented Tabs */
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 4px;
+  background-color: var(--bg-subtle);
+  border-radius: var(--radius-md);
+}
+
+.tab {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition), color var(--transition), box-shadow var(--transition);
+}
+
+.tab:hover {
+  color: var(--text-primary);
+}
+
+.tab.is-active {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Inputs */
+.text-control {
+  width: 100%;
+  font: inherit;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 11px 14px;
+  transition: border-color var(--transition), box-shadow var(--transition), background-color var(--transition);
+}
+
+.text-control::placeholder {
+  color: #9ca3af;
+}
+
+.text-control:hover {
+  border-color: #9ca3af;
+}
+
+.text-control:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.text-control.is-invalid {
+  border-color: var(--error);
+  background-color: var(--error-bg);
+}
+
+.text-control.is-invalid:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.14);
+}
+
+.textarea-control {
+  resize: vertical;
+  min-height: 112px;
+  line-height: 1.5;
+}
+
+.helper-text {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.error-text {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--error);
+}
+
+/* Buttons */
+.actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.btn {
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 10px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background-color var(--transition), border-color var(--transition), color var(--transition), opacity var(--transition);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+}
+
+.btn-secondary {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--bg-subtle);
+}
+
+.btn-secondary.is-copied {
+  color: var(--success);
+  border-color: #a7f3d0;
+  background-color: #ecfdf5;
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--text-secondary);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background-color: var(--bg-subtle);
+  color: var(--text-primary);
+}
+
+.btn-full {
+  width: 100%;
+  max-width: 248px;
+}
+
+/* Preview Area */
+.preview-box {
+  width: 248px;
+  height: 248px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  transition: border-color var(--transition);
+}
+
+.preview-box.has-qr {
+  border-color: var(--border-strong);
+}
+
+.qr-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  border-radius: 4px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 16px;
+  color: var(--text-muted);
+}
+
+.empty-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 10px;
+  border-radius: var(--radius-md);
+  background-color: var(--bg-subtle);
+  color: var(--text-secondary);
+  display: grid;
+  place-items: center;
+}
+
+.empty-title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.empty-subtitle {
+  margin: 4px 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.qr-meta {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* Footer */
+.footer {
+  width: 100%;
+  max-width: 860px;
+  text-align: center;
+}
+
+.footer p {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+/* Utility */
+.is-hidden {
+  display: none !important;
+}
+
+/* Responsive */
+@media (max-width: 760px) {
+  .page {
+    padding: 20px 16px;
+    justify-content: flex-start;
+  }
+
+  .card {
+    grid-template-columns: 1fr;
+  }
+
+  .panel {
+    padding: 22px 20px;
+  }
+
+  .panel-input {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .preview-box {
+    width: 224px;
+    height: 224px;
+  }
+
+  .btn-full {
+    max-width: 224px;
+  }
+}
+
+    
+</style>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+            <path d="M14 14h3v3h-3z"></path>
+            <path d="M20 14v3"></path>
+            <path d="M14 20h7"></path>
+            <path d="M20 20v-1"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">QRbit</h1>
+          <p class="brand-subtitle">Instant, private QR code generator</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="card" aria-label="QR Code Generator">
+        <!-- Input Column -->
+        <div class="panel panel-input">
+          <div class="field-group">
+            <span class="section-label" id="typeLabel">Content type</span>
+            <div class="tabs" id="typeTabs" role="tablist" aria-labelledby="typeLabel">
+              <button type="button" class="tab is-active" role="tab" aria-selected="true" data-type="url">
+                URL
+              </button>
+              <button type="button" class="tab" role="tab" aria-selected="false" data-type="text">
+                Text
+              </button>
+              <button type="button" class="tab" role="tab" aria-selected="false" data-type="email">
+                Email
+              </button>
+              <button type="button" class="tab" role="tab" aria-selected="false" data-type="phone">
+                Phone
+              </button>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="input-label" id="inputLabel" for="singleInput">Website URL</label>
+
+            <input
+              id="singleInput"
+              class="text-control"
+              type="url"
+              placeholder="https://example.com"
+              autocomplete="off"
+              spellcheck="false"
+              aria-describedby="inputHint errorMessage"
+            />
+
+            <textarea
+              id="multiInput"
+              class="text-control textarea-control is-hidden"
+              rows="4"
+              placeholder="Enter any text, note, or message..."
+              aria-describedby="inputHint errorMessage"
+            ></textarea>
+
+            <p id="inputHint" class="helper-text">
+              Enter a web address starting with https:// or a domain name.
+            </p>
+            <p id="errorMessage" class="error-text is-hidden" role="alert"></p>
+          </div>
+
+          <div class="actions-row">
+            <button type="button" id="copyBtn" class="btn btn-secondary" disabled>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span id="copyBtnText">Copy text</span>
+            </button>
+
+            <button type="button" id="clearBtn" class="btn btn-ghost" disabled>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M18 6 6 18"></path>
+                <path d="m6 6 12 12"></path>
+              </svg>
+              <span>Clear</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Preview Column -->
+        <div class="panel panel-preview">
+          <div class="preview-box" id="qrPreviewBox">
+            <div class="empty-state" id="qrEmptyState">
+              <div class="empty-icon" aria-hidden="true">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                  <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                  <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                  <path d="M14 14h3v3h-3z"></path>
+                  <path d="M20 14v3"></path>
+                  <path d="M14 20h7"></path>
+                </svg>
+              </div>
+              <p class="empty-title">Live preview</p>
+              <p class="empty-subtitle">Your QR code will appear here automatically</p>
+            </div>
+
+            <canvas
+              id="qrCanvas"
+              class="qr-canvas is-hidden"
+              aria-label="Generated QR code preview"
+            ></canvas>
+          </div>
+
+          <p id="qrMeta" class="qr-meta" aria-live="polite">Ready when you are</p>
+
+          <button type="button" id="downloadBtn" class="btn btn-primary btn-full" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Download PNG</span>
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Runs entirely in your browser. No data leaves your device.</p>
+    </footer>
+  </div>
+
+  <!-- Lightweight, zero-dependency QR code generator -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
+    crossorigin="anonymous"
+  ></script>
+  <script>
+
+      (() => {
+  'use strict';
+
+  const CONFIG = {
+    errorCorrectionLevel: 'M',
+    quietZoneModules: 4,
+    exportMinSizePx: 1024,
+    validationDelayMs: 420
+  };
+
+  const TYPE_META = {
+    url: {
+      label: 'Website URL',
+      placeholder: 'https://example.com',
+      hint: 'Enter a web address starting with https:// or a domain name.',
+      inputType: 'url',
+      inputMode: 'url',
+      multiline: false
+    },
+    text: {
+      label: 'Plain text',
+      placeholder: 'Enter any text, note, or message...',
+      hint: 'Supports letters, numbers, symbols, and line breaks.',
+      inputType: 'text',
+      inputMode: 'text',
+      multiline: true
+    },
+    email: {
+      label: 'Email address',
+      placeholder: 'name@example.com',
+      hint: 'Generates a scannable mailto: link.',
+      inputType: 'email',
+      inputMode: 'email',
+      multiline: false
+    },
+    phone: {
+      label: 'Phone number',
+      placeholder: '+1 (555) 123-4567',
+      hint: 'Include country code for international numbers (e.g., +1).',
+      inputType: 'tel',
+      inputMode: 'tel',
+      multiline: false
+    }
+  };
+
+  const state = {
+    activeType: 'url',
+    values: {
+      url: '',
+      text: '',
+      email: '',
+      phone: ''
+    },
+    currentQR: null,
+    currentPayload: '',
+    validationTimer: null,
+    copyTimer: null
+  };
+
+  const els = {
+    tabs: Array.from(document.querySelectorAll('#typeTabs .tab')),
+    inputLabel: document.getElementById('inputLabel'),
+    singleInput: document.getElementById('singleInput'),
+    multiInput: document.getElementById('multiInput'),
+    inputHint: document.getElementById('inputHint'),
+    errorMessage: document.getElementById('errorMessage'),
+    copyBtn: document.getElementById('copyBtn'),
+    copyBtnText: document.getElementById('copyBtnText'),
+    clearBtn: document.getElementById('clearBtn'),
+    qrPreviewBox: document.getElementById('qrPreviewBox'),
+    qrEmptyState: document.getElementById('qrEmptyState'),
+    qrCanvas: document.getElementById('qrCanvas'),
+    qrMeta: document.getElementById('qrMeta'),
+    downloadBtn: document.getElementById('downloadBtn')
+  };
+
+  function isLibraryReady() {
+    return typeof window.qrcode === 'function';
+  }
+
+  function enableUtf8Support() {
+    if (
+      isLibraryReady() &&
+      window.qrcode.stringToBytesFuncs &&
+      window.qrcode.stringToBytesFuncs['UTF-8']
+    ) {
+      window.qrcode.stringToBytes = window.qrcode.stringToBytesFuncs['UTF-8'];
+    }
+  }
+
+  function getActiveControl() {
+    return TYPE_META[state.activeType].multiline ? els.multiInput : els.singleInput;
+  }
+
+  function validateAndFormat(type, rawValue) {
+    const trimmed = rawValue.trim();
+
+    if (!trimmed) {
+      return { empty: true, valid: false, payload: '', error: '', note: '' };
+    }
+
+    if (type === 'url') {
+      if (/\s/.test(trimmed)) {
+        return {
+          empty: false,
+          valid: false,
+          payload: '',
+          error: 'URLs cannot contain spaces.',
+          note: ''
+        };
+      }
+
+      const hasScheme = /^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(trimmed);
+      let candidate = trimmed;
+
+      if (hasScheme) {
+        if (!/^https?:\/\//i.test(trimmed)) {
+          return {
+            empty: false,
+            valid: false,
+            payload: '',
+            error: 'Please enter a valid web URL starting with http:// or https://.',
+            note: ''
+          };
+        }
+      } else {
+        candidate = `https://${trimmed}`;
+      }
+
+      try {
+        const parsed = new URL(candidate);
+        const host = parsed.hostname;
+        const validHost =
+          host === 'localhost' ||
+          (/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(host) && !host.startsWith('.') && !host.endsWith('.'));
+
+        if (!validHost) {
+          throw new Error('Invalid host');
+        }
+
+        return {
+          empty: false,
+          valid: true,
+          payload: parsed.href,
+          error: '',
+          note: hasScheme ? '' : `Encoded as ${parsed.href}`
+        };
+      } catch {
+        return {
+          empty: false,
+          valid: false,
+          payload: '',
+          error: 'Please enter a valid URL (e.g., https://example.com).',
+          note: ''
+        };
+      }
+    }
+
+    if (type === 'email') {
+      const cleaned = trimmed.replace(/^mailto:/i, '').trim();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+      if (!emailRegex.test(cleaned)) {
+        return {
+          empty: false,
+          valid: false,
+          payload: '',
+          error: 'Please enter a valid email address (e.g., name@example.com).',
+          note: ''
+        };
+      }
+
+      return {
+        empty: false,
+        valid: true,
+        payload: `mailto:${cleaned}`,
+        error: '',
+        note: `Encoded as mailto:${cleaned}`
+      };
+    }
+
+    if (type === 'phone') {
+      if (!/^[+\d\s().-]+$/.test(trimmed)) {
+        return {
+          empty: false,
+          valid: false,
+          payload: '',
+          error: 'Phone numbers can only contain digits, spaces, +, -, and parentheses.',
+          note: ''
+        };
+      }
+
+      const plusMatches = trimmed.match(/\+/g);
+      if (plusMatches && (plusMatches.length > 1 || !trimmed.startsWith('+'))) {
+        return {
+          empty: false,
+          valid: false,
+          payload: '',
+          error: 'The + sign may only appear at the beginning of the phone number.',
+          note: ''
+        };
+      }
+
+      const digitsOnly = trimmed.replace(/\D/g, '');
+      if (digitsOnly.length < 7 || digitsOnly.length > 15) {
+        return {
+          empty: false,
+          valid: false,
+          payload: '',
+          error: 'Please enter a valid phone number (7 to 15 digits).',
+          note: ''
+        };
+      }
+
+      const normalized = `${trimmed.startsWith('+') ? '+' : ''}${digitsOnly}`;
+      return {
+        empty: false,
+        valid: true,
+        payload: `tel:${normalized}`,
+        error: '',
+        note: `Encoded as tel:${normalized}`
+      };
+    }
+
+    // Plain text
+    const byteLength = new TextEncoder().encode(rawValue).length;
+    if (byteLength > 2331) {
+      return {
+        empty: false,
+        valid: false,
+        payload: '',
+        error: 'Text exceeds the maximum QR code capacity. Please shorten your message.',
+        note: ''
+      };
+    }
+
+    return {
+      empty: false,
+      valid: true,
+      payload: rawValue,
+      error: '',
+      note: ''
+    };
+  }
+
+  function createQRMatrix(payload) {
+    enableUtf8Support();
+    const qr = window.qrcode(0, CONFIG.errorCorrectionLevel);
+    qr.addData(payload, 'Byte');
+    qr.make();
+    return qr;
+  }
+
+  function drawQRToCanvas(qr, canvas, targetMinPx) {
+    const moduleCount = qr.getModuleCount();
+    const quiet = CONFIG.quietZoneModules;
+    const totalModules = moduleCount + quiet * 2;
+    const cellSize = Math.max(4, Math.floor(targetMinPx / totalModules));
+    const size = totalModules * cellSize;
+
+    canvas.width = size;
+    canvas.height = size;
+
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, size, size);
+
+    ctx.fillStyle = '#000000';
+    for (let row = 0; row < moduleCount; row++) {
+      for (let col = 0; col < moduleCount; col++) {
+        if (qr.isDark(row, col)) {
+          ctx.fillRect((col + quiet) * cellSize, (row + quiet) * cellSize, cellSize, cellSize);
+        }
+      }
+    }
+  }
+
+  function showError(message) {
+    const control = getActiveControl();
+    if (message) {
+      els.errorMessage.textContent = message;
+      els.errorMessage.classList.remove('is-hidden');
+      control.classList.add('is-invalid');
+      control.setAttribute('aria-invalid', 'true');
+    } else {
+      els.errorMessage.textContent = '';
+      els.errorMessage.classList.add('is-hidden');
+      els.singleInput.classList.remove('is-invalid');
+      els.multiInput.classList.remove('is-invalid');
+      els.singleInput.removeAttribute('aria-invalid');
+      els.multiInput.removeAttribute('aria-invalid');
+    }
+  }
+
+  function clearPreview(statusText = 'Ready when you are') {
+    state.currentQR = null;
+    state.currentPayload = '';
+    els.qrCanvas.classList.add('is-hidden');
+    els.qrEmptyState.classList.remove('is-hidden');
+    els.qrPreviewBox.classList.remove('has-qr');
+    els.qrMeta.textContent = statusText;
+    els.downloadBtn.disabled = true;
+  }
+
+  function renderPreview(qr, note) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    drawQRToCanvas(qr, els.qrCanvas, Math.round(240 * dpr));
+
+    const modules = qr.getModuleCount();
+    els.qrEmptyState.classList.add('is-hidden');
+    els.qrCanvas.classList.remove('is-hidden');
+    els.qrPreviewBox.classList.add('has-qr');
+    els.qrMeta.textContent = note
+      ? `${modules}×${modules} modules · ${note}`
+      : `${modules}×${modules} modules · PNG ready`;
+    els.downloadBtn.disabled = false;
+  }
+
+  function updateActionButtons(rawValue) {
+    const hasValue = rawValue.length > 0;
+    els.copyBtn.disabled = !hasValue;
+    els.clearBtn.disabled = !hasValue;
+  }
+
+  function processInput({ immediateValidation = false } = {}) {
+    clearTimeout(state.validationTimer);
+
+    const rawValue = state.values[state.activeType];
+    updateActionButtons(rawValue);
+
+    if (!isLibraryReady()) {
+      clearPreview('QR library unavailable');
+      showError('QR generator library failed to load. Please check your internet connection and reload.');
+      return;
+    }
+
+    const result = validateAndFormat(state.activeType, rawValue);
+
+    if (result.empty) {
+      showError('');
+      clearPreview('Ready when you are');
+      return;
+    }
+
+    if (!result.valid) {
+      clearPreview('Waiting for valid input');
+      if (immediateValidation) {
+        showError(result.error);
+      } else {
+        showError('');
+        state.validationTimer = setTimeout(() => {
+          const latest = validateAndFormat(state.activeType, state.values[state.activeType]);
+          if (!latest.empty && !latest.valid) {
+            showError(latest.error);
+          }
+        }, CONFIG.validationDelayMs);
+      }
+      return;
+    }
+
+    try {
+      const qr = createQRMatrix(result.payload);
+      state.currentQR = qr;
+      state.currentPayload = result.payload;
+      showError('');
+      renderPreview(qr, result.note);
+    } catch {
+      clearPreview('Input too long');
+      showError('Content exceeds maximum QR code size. Please shorten it.');
+    }
+  }
+
+  function switchType(nextType) {
+    if (!TYPE_META[nextType] || nextType === state.activeType) return;
+
+    state.activeType = nextType;
+    const meta = TYPE_META[nextType];
+
+    els.tabs.forEach((tab) => {
+      const isSelected = tab.dataset.type === nextType;
+      tab.classList.toggle('is-active', isSelected);
+      tab.setAttribute('aria-selected', String(isSelected));
+    });
+
+    els.inputLabel.textContent = meta.label;
+    els.inputHint.textContent = meta.hint;
+
+    if (meta.multiline) {
+      els.singleInput.classList.add('is-hidden');
+      els.multiInput.classList.remove('is-hidden');
+      els.multiInput.placeholder = meta.placeholder;
+      els.multiInput.value = state.values[nextType];
+      els.inputLabel.setAttribute('for', 'multiInput');
+      els.multiInput.focus();
+    } else {
+      els.multiInput.classList.add('is-hidden');
+      els.singleInput.classList.remove('is-hidden');
+      els.singleInput.type = meta.inputType;
+      els.singleInput.inputMode = meta.inputMode;
+      els.singleInput.placeholder = meta.placeholder;
+      els.singleInput.value = state.values[nextType];
+      els.inputLabel.setAttribute('for', 'singleInput');
+      els.singleInput.focus();
+    }
+
+    resetCopyButton();
+    processInput({ immediateValidation: true });
+  }
+
+  function handleInputChange(event) {
+    state.values[state.activeType] = event.target.value;
+    resetCopyButton();
+    processInput({ immediateValidation: false });
+  }
+
+  function handleInputBlur() {
+    processInput({ immediateValidation: true });
+  }
+
+  function downloadPNG() {
+    if (!state.currentQR) {
+      processInput({ immediateValidation: true });
+      return;
+    }
+
+    const exportCanvas = document.createElement('canvas');
+    drawQRToCanvas(state.currentQR, exportCanvas, CONFIG.exportMinSizePx);
+
+    const filename = `quickqr-${state.activeType}.png`;
+
+    if (exportCanvas.toBlob) {
+      exportCanvas.toBlob((blob) => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        triggerDownload(url, filename);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }, 'image/png');
+    } else {
+      triggerDownload(exportCanvas.toDataURL('image/png'), filename);
+    }
+  }
+
+  function triggerDownload(href, filename) {
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function resetCopyButton() {
+    clearTimeout(state.copyTimer);
+    els.copyBtn.classList.remove('is-copied');
+    els.copyBtnText.textContent = 'Copy text';
+  }
+
+  async function copyInputText() {
+    const text = state.values[state.activeType];
+    if (!text) return;
+
+    let copied = false;
+
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(text);
+        copied = true;
+      } catch {
+        copied = false;
+      }
+    }
+
+    if (!copied) {
+      const temp = document.createElement('textarea');
+      temp.value = text;
+      temp.setAttribute('readonly', '');
+      temp.style.position = 'fixed';
+      temp.style.opacity = '0';
+      document.body.appendChild(temp);
+      temp.select();
+      try {
+        copied = document.execCommand('copy');
+      } catch {
+        copied = false;
+      }
+      document.body.removeChild(temp);
+    }
+
+    if (copied) {
+      clearTimeout(state.copyTimer);
+      els.copyBtn.classList.add('is-copied');
+      els.copyBtnText.textContent = 'Copied!';
+      state.copyTimer = setTimeout(resetCopyButton, 1800);
+    }
+  }
+
+  function clearActiveInput() {
+    state.values[state.activeType] = '';
+    const control = getActiveControl();
+    control.value = '';
+    resetCopyButton();
+    processInput({ immediateValidation: false });
+    control.focus();
+  }
+
+  function init() {
+    els.tabs.forEach((tab) => {
+      tab.addEventListener('click', () => switchType(tab.dataset.type));
+    });
+
+    els.singleInput.addEventListener('input', handleInputChange);
+    els.multiInput.addEventListener('input', handleInputChange);
+
+    els.singleInput.addEventListener('blur', handleInputBlur);
+    els.multiInput.addEventListener('blur', handleInputBlur);
+
+    els.copyBtn.addEventListener('click', copyInputText);
+    els.clearBtn.addEventListener('click', clearActiveInput);
+    els.downloadBtn.addEventListener('click', downloadPNG);
+
+    processInput({ immediateValidation: false });
+  }
+
+  init();
+})();
+      
+  </script>
+
+    <script src="https://cdn.jsdelivr.net/gh/justorbit/badge@latest/badge.min.js"></script>
+</body>
+</html>
